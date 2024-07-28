@@ -38,10 +38,6 @@ resource "azurerm_public_ip" "publicip" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   allocation_method   = "Static"
-
-  tags = {
-    environment = "Production"
-  }
 }
 
 resource "azurerm_network_security_group" "net_sg" {
@@ -82,10 +78,16 @@ resource "azurerm_network_security_group" "net_sg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-
-
-  tags = {
-    environment = "Production"
+    security_rule {
+    name                       = "sqlp"
+    priority                   = 110
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "1433"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
   }
 }
 
@@ -101,7 +103,6 @@ resource "azurerm_network_interface" "vmnic" {
     public_ip_address_id          = azurerm_public_ip.publicip.id
   }
 }
-
 
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "sg_assoc" {
@@ -124,7 +125,7 @@ resource "azurerm_windows_virtual_machine" "server_vm" {
   location            = azurerm_resource_group.rg.location
   size                = "Standard_F2"
   admin_username      = "clintonpillay"
-  admin_password      = "adminpassword"
+  admin_password      = "AdminPassword123"
   network_interface_ids = [azurerm_network_interface.vmnic.id,
   ]
 
@@ -140,7 +141,6 @@ resource "azurerm_windows_virtual_machine" "server_vm" {
     version   = "latest"
   }
 }
-
 
 resource "azurerm_virtual_machine_extension" "psscript" {
   name                 = "script-extension"
