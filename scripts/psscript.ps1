@@ -117,4 +117,11 @@ $installerPath = "$env:TEMP\python-installer.exe"
 Invoke-WebRequest -Uri $pythonInstallerUrl -OutFile $installerPath
 Start-Process -FilePath $installerPath -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1' -Wait
 
+New-NetFirewallRule -DisplayName "Allow HTTP" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow
 
+
+Invoke-WebRequest "https://mypsscripts.blob.core.windows.net/scripts/py-st-script.ps1" -OutFile "C:\users\Public\flaskapp\py-st-script.ps1" 
+$action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument 'C:\users\Public\flaskapp\py-st-script.ps1'49
+$trigger = New-ScheduledTaskTrigger -AtStartup
+$principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+Register-ScheduledTask -Action $action -Trigger $trigger -Principal $principal -TaskName "flaskapp" -Description "Start my flask app"
