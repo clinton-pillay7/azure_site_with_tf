@@ -54,6 +54,7 @@ $sqlsourcefolder = "C:\users\clintonpillay\downloads\"
 $sqlconfigfile = "C:\users\clintonpillay\Downloads\configurationfile.ini"
 
 
+
 Invoke-Webrequest $sqlurl -OutFile $sqlziplocation
 Expand-Archive -Path $sqlziplocation -DestinationPath $sqlsourcefolder 
 Invoke-Webrequest $configfileurl -OutFile $sqlconfigfile
@@ -110,7 +111,7 @@ VALUES ('clinton', 'pillay')
 
 Invoke-Sqlcmd -ServerInstance $serverName -Database $databaseName -Username $username -Password $password -Query $sqlInsertCommand -TrustServerCertificate
 
-
+#Python install
 $pythonInstallerUrl = "https://www.python.org/ftp/python/3.9.9/python-3.9.9-amd64.exe"
 $installerPath = "$env:TEMP\python-installer.exe"
 Invoke-WebRequest -Uri $pythonInstallerUrl -OutFile $installerPath
