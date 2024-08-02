@@ -62,3 +62,10 @@ VALUES ('clinton', 'pillay')
 "@
 
 Invoke-Sqlcmd -ServerInstance $serverName -Database $databaseName -Username $username -Password $password -Query $sqlInsertCommand -TrustServerCertificate
+
+
+$pythonInstallerUrl = "https://www.python.org/ftp/python/3.9.9/python-3.9.9-amd64.exe"
+$installerPath = "$env:TEMP\python-installer.exe"
+Invoke-WebRequest -Uri $pythonInstallerUrl -OutFile $installerPath
+Start-Process -FilePath $installerPath -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1' -Wait
+
