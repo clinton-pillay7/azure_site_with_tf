@@ -100,9 +100,6 @@ resource "azurerm_network_security_group" "net_sg" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-
-
-
 }
 
 resource "azurerm_network_interface" "vmnic" {
@@ -156,6 +153,8 @@ resource "azurerm_windows_virtual_machine" "server_vm" {
   }
 }
 
+
+
 resource "azurerm_virtual_machine_extension" "psscript" {
   name                 = "script-extension"
   virtual_machine_id   = azurerm_windows_virtual_machine.server_vm.id
@@ -169,4 +168,6 @@ resource "azurerm_virtual_machine_extension" "psscript" {
         "commandToExecute": "powershell -ExecutionPolicy Unrestricted -File psscript.ps1"
     }
 SETTINGS
+  depends_on = [azurerm_windows_virtual_machine.server_vm]
 }
+
