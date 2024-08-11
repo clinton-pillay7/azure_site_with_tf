@@ -1,3 +1,21 @@
+<#
+.SYNOPSIS
+Batch script to initialise a Azure Vm, by setting up necessary software - unattended using Powershell.
+
+
+.DESCRIPTION
+Installs\ Configures the following: 
+1. Installs SQL Server
+2. Initialises the database, by creating a database, table, and inserting sample data. 
+3. Installs Python
+4. Setups up a Scheduled task to start up a flask app. 
+
+
+.NOTES
+- Logging is setup, config logs for this script can be found on the target VM, at C:\sqllog.log
+#>
+
+
 # Create the file with the current date as the name
 New-Item -Path "C:\" -Name "sqllog.log" -ItemType File
 
@@ -10,8 +28,8 @@ try {
     $sqlsourcefolder = "C:\users\Public\setupdata"
     $sqlconfigfile = "C:\users\Public\setupdata\configurationfile.ini"
     $flaskappurl = "https://github.com/SashiDuratech/flaskhelloworld/raw/master/app.py"
-    $taskscripturl = "https://mypsscripts.blob.core.windows.net/scripts/py-st-script.ps1"
-    $taskscript = "C:\users\Public\setupdata\py-st-script.ps1"
+    $taskscripturl = "https://mypsscripts.blob.core.windows.net/scripts/appscript.ps1"
+    $taskscript = "C:\users\Public\setupdata\appscript.ps1"
     $flaskfile = "C:\users\Public\setupdata\app.py"
     $datevar = Get-Date
     Add-Content -Path "C:\sqllog.log" -Value "$datevar Successfully assigned variables"
@@ -151,7 +169,7 @@ catch {
 
 
 try {
-    $action = New-ScheduledTaskAction -Execute 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe' -Argument -File $taskscript
+    $action = New-ScheduledTaskAction -Execute 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe' -Argument "-ExecutionPolicy Bypass .\appscript.ps1" -WorkingDirectory "C:\Users\Public\setupdata\"
     $trigger = New-ScheduledTaskTrigger -AtStartup
     $principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
     Register-ScheduledTask -Action $action -Trigger $trigger -Principal $principal -TaskName "flaskapp" -Description "Start my flask app"
@@ -162,4 +180,3 @@ catch {
     $datevar = Get-Date
     Add-Content -Path "C:\sqllog.log" -Value "$datevar Couldnt create scheduled task"
 }
-
