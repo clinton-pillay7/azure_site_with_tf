@@ -180,3 +180,7 @@ catch {
     $datevar = Get-Date
     Add-Content -Path "C:\sqllog.log" -Value "$datevar Couldnt create scheduled task"
 }
+
+Restart-Computer -Force
+
+
