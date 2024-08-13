@@ -27,10 +27,10 @@ try {
     $sqlziplocation = "C:\users\Public\setupdata\SQLEXPRADV_x64_ENU.zip"
     $sqlsourcefolder = "C:\users\Public\setupdata"
     $sqlconfigfile = "C:\users\Public\setupdata\configurationfile.ini"
-    $flaskappurl = "https://github.com/SashiDuratech/flaskhelloworld/raw/master/app.py"
+    $flaskappurl = "https://mypsscripts.blob.core.windows.net/scripts/flaskapp.zip"
+    $flaskziplocation = "C:\users\Public\setupdata\flaskapp.zip"
     $taskscripturl = "https://mypsscripts.blob.core.windows.net/scripts/appscript.ps1"
     $taskscript = "C:\users\Public\setupdata\appscript.ps1"
-    $flaskfile = "C:\users\Public\setupdata\app.py"
     $datevar = Get-Date
     Add-Content -Path "C:\sqllog.log" -Value "$datevar Successfully assigned variables"
     }
@@ -42,9 +42,10 @@ catch {
 
 
 try {
-    Invoke-WebRequest $flaskappurl -OutFile $flaskfile
+    Invoke-WebRequest $flaskappurl -OutFile $flaskziplocation
     Invoke-WebRequest $taskscripturl -OutFile $taskscript 
     Invoke-Webrequest $sqlurl -OutFile $sqlziplocation
+    Expand-Archive $flaskziplocation -DestinationPath $sqlsourcefolder
     Expand-Archive -Path $sqlziplocation -DestinationPath $sqlsourcefolder 
     Invoke-Webrequest $configfileurl -OutFile $sqlconfigfile
     $datevar = Get-Date
@@ -87,41 +88,16 @@ catch {
 try {
     Start-Service -Name 'MSSQL$SQLEXPRESS'
     Start-Service -Name 'SQLBrowser'
-    # Define the SQL Server connection details
-
-
 
 
     # Step 1: Create Database
     $sqlCreateDatabase = @"
-    CREATE DATABASE mydb
+    CREATE DATABASE flaskapp
 "@
     $constringdbnew = "Server=localhost\SQLEXPRESS;User ID=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=True;"
     Invoke-Sqlcmd -ConnectionString $constringdbnew -Query $sqlCreateDatabase  -DisableVariables
 
 
-    # Step 2: Create Table
-    $sqlCreateTable = @"
-    CREATE TABLE mytable (
-    id INT PRIMARY KEY IDENTITY(1,1),
-    name NVARCHAR(50),
-    surname NVARCHAR(50)
-)
-"@
-    $constringdb = "Server=localhost\SQLEXPRESS;User ID=sa;Password=YourStrong!Passw0rd;Database=mydb;TrustServerCertificate=True;"
-    Invoke-Sqlcmd  -ConnectionString $constringdb -Query $sqlCreateTable -DisableVariables
-
-
-    # Step 3: Insert Data
-
-    $sqlInsertCommand = @"
-    INSERT INTO mytable (name, surname)
-    VALUES ('clinton', 'pillay')
-"@
-    $constringdb = "Server=localhost\SQLEXPRESS;User ID=sa;Password=YourStrong!Passw0rd;Database=mydb;TrustServerCertificate=True;"
-    Invoke-Sqlcmd -ConnectionString $constringdb -Query $sqlInsertCommand -DisableVariables
-    $datevar = Get-Date
-    Add-Content -Path "C:\sqllog.log" -Value "$datevar SQL Commands run successfully"
 }
 catch {
     
@@ -157,7 +133,7 @@ catch {
 }
 
 try {
-    New-NetFirewallRule -DisplayName "Allow HTTPFlask" -Direction Inbound -Protocol TCP -LocalPort 8080 -Action Allow
+    New-NetFirewallRule -DisplayName "Allow HTTPFlask" -Direction Inbound -Protocol TCP -LocalPort 5000 -Action Allow
     $datevar = Get-Date
     Add-Content -Path "C:\sqllog.log" -Value "$datevar Successfully created HTTPFlask firewall rule"
     

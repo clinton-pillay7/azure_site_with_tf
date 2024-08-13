@@ -1,2 +1,3 @@
-pip install flask
-python C:\users\Public\setupdata\app.py
+python -m pip install --upgrade pip
+pip install Flask SQLAlchemy pyodbc flask_sqlalchemy
+python C:\users\Public\setupdata\flaskapp\app.py
